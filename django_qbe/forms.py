@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 
 from django_qbe.operators import CustomOperator, BACKEND_TO_OPERATIONS
 from django_qbe.utils import get_models
-from django_qbe.widgets import CriteriaInput
+from django_qbe.widgets import CriteriaInput, AggregateInput
 
 
 DATABASES = None
@@ -34,6 +34,14 @@ SORT_CHOICES = (
     ("des", _("Descending")),
 )
 
+AGGREGATE_CHOICES = (
+    ("", ""),
+    ("count", _("Count")),
+    ("sum", _("Sum")),
+    ("avg", _("Avg")),
+    ("max", _("Max")),
+    ("min", _("Min")),
+)
 
 class QueryByExampleForm(forms.Form):
     show = forms.BooleanField(label=_("Show"), required=False)
@@ -41,6 +49,8 @@ class QueryByExampleForm(forms.Form):
     model = forms.CharField(label=_("Model"))
     field = forms.CharField(label=_("Field"))
     criteria = forms.CharField(label=_("Criteria"), required=False)
+    aggregate = forms.ChoiceField(label=_("Aggregate"), choices=AGGREGATE_CHOICES,
+                             required=False)
     sort = forms.ChoiceField(label=_("Sort"), choices=SORT_CHOICES,
                              required=False)
     group_by = forms.BooleanField(label=_("Group by"), required=False)
@@ -53,6 +63,12 @@ class QueryByExampleForm(forms.Form):
                                           'class': 'submitIfChecked'},
                                    choices=SORT_CHOICES)
         self.fields['sort'].widget = sort_widget
+
+        aggregate_widget = forms.Select(attrs={'disabled': "disabled",
+                                          'class': 'submitIfChecked'},
+                                   choices=AGGREGATE_CHOICES)
+        self.fields['aggregate'].widget = aggregate_widget
+
         criteria_widget = CriteriaInput(attrs={'disabled': "disabled"})
         self.fields['criteria'].widget = criteria_widget
         criteria_widgets = getattr(criteria_widget, "widgets", [])
@@ -60,9 +76,10 @@ class QueryByExampleForm(forms.Form):
             criteria_len = len(criteria_widgets)
             criteria_names = ",".join([("criteria_%s" % s)
                                        for s in range(0, criteria_len)])
-            field_attr_class = "qbeFillFields enable:sort,%s" % criteria_names
         else:
-            field_attr_class = "qbeFillFields enable:sort,criteria"
+            criteria_names = "criteria"
+
+        field_attr_class = "qbeFillFields enable:sort,aggregate,%s" % (criteria_names)
         field_widget = forms.Select(attrs={'class': field_attr_class})
         self.fields['field'].widget = field_widget
 

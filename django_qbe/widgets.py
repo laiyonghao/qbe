@@ -26,6 +26,14 @@ OPERATOR_CHOICES = (
     ('join', _('joins to')),
 )
 
+AGGREGATE_CHOICES = (
+    ('', ''),
+    ('count', _('count')),
+    ('sum', _('sum')),
+    ('avg', _('avg')),
+    ('min', _('min')),
+    ('max', _('max')),
+)
 
 class CheckboxLabelWidget(Widget):
 
@@ -73,3 +81,18 @@ class CriteriaInput(MultiWidget):
         if value:
             return value
         return (None, None)
+
+class AggregateInput(MultiWidget):
+
+    class Media(object):
+        js = ('django_qbe/js/qbe.widgets.js', )
+
+    def __init__(self, *args, **kwargs):
+        widgets = [Select(choices=AGGREGATE_CHOICES), TextInput()]
+        super(AggregateInput, self).__init__(widgets=widgets, *args, **kwargs)
+
+    def decompress(self, value):
+        if value:
+            return value
+        return (None, None)
+
