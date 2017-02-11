@@ -1,6 +1,10 @@
 from builtins import object
 # -*- coding: utf-8 -*-
-from django.forms.util import flatatt
+try:
+    from django.forms.utils import flatatt
+except ImportError:
+    # Backward compatibility for Django prior to 1.7
+    from django.forms.util import flatatt
 from django.forms.widgets import MultiWidget, Select, TextInput, Widget
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -22,7 +26,7 @@ OPERATOR_CHOICES = (
     ('icontains', _('(i) contains')),
     ('iregex', _('(i) matchs regex')),
     ('istartswith', _('(i) starts with')),
-    ('endswith', _('(i) ends with')),
+    ('iendswith', _('(i) ends with')),
     ('join', _('joins to')),
 )
 
